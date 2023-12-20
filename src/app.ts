@@ -2,39 +2,58 @@ import * as dotenv from "dotenv";
 
 import { openWallet } from "./utils";
 import { SendMode, internal } from "ton-core";
-import { sleep } from "./delay";
 
 dotenv.config();
 
+let successCount = 0;
+let failCount = 0;
+
 async function init() {
-  const wallet = await openWallet(process.env.MNEMONIC!.split(" "), false);  
-  const seqno = await wallet.contract.getSeqno();
+  try {
+    const wallet = await openWallet(process.env.MNEMONIC!.split(" "), false);  
+    const seqno = await wallet.contract.getSeqno();
 
-  const payload = internal({
-    to: 'UQCzB2xDBA3ngtvUwEsdoEcnLTqX369KK1FvF7mUbv4LWsXc',
-    value: '0',
-    body: 'data:application/json,{"p":"ton-20","op":"mint","tick":"dedust.io","amt":"1000000000"}'
-  })
+    const payload = internal({
+      to: 'UQCzB2xDBA3ngtvUwEsdoEcnLTqX369KK1FvF7mUbv4LWsXc',
+      value: '0',
+      body: 'data:application/json,{"p":"ton-20","op":"mint","tick":"dedust.io","amt":"1000000000"}'
+    })
 
-  const params: any = {
-    seqno,
-    secretKey: wallet.keyPair.secretKey,
-    messages: [
-      payload,
-      payload,
-      payload,
-      payload,
-    ],
-    sendMode: SendMode.PAY_GAS_SEPARATELY + SendMode.IGNORE_ERRORS
+    const params: any = {
+      seqno,
+      secretKey: wallet.keyPair.secretKey,
+      messages: [
+        payload,
+      ],
+      sendMode: SendMode.PAY_GAS_SEPARATELY + SendMode.IGNORE_ERRORS
+    }
+
+    console.log('-> transfering...');
+
+    await wallet.contract.sendTransfer(params)
+    successCount++;
+  } catch (error) {
+    console.log('---> skipping error');   
+    failCount++;
   }
-
-  await wallet.contract.sendTransfer(params)
 }
 
-let totalTx = 1;
-while (totalTx > 0) {
-  totalTx--;
-  sleep(1000).then(() => {
-    init().then(() => { console.log("Remaining tx: " + totalTx) });
-  })
+let totalTx = 500;
+let i = 1;                  
+
+function myLoop() {         
+  setTimeout(function() {   
+    console.log(`Tx ${i} sent`);
+    init();
+    i++;                    
+    if (i < totalTx) {           
+      myLoop();  
+    } else {
+      console.log(`Total success: ${successCount}`);
+      console.log(`Total fail: ${failCount}`);
+    }                       
+  }, 3000)
 }
+
+myLoop();
+
