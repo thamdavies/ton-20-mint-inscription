@@ -16,7 +16,7 @@ async function init() {
     const payload = internal({
       to: 'UQCzB2xDBA3ngtvUwEsdoEcnLTqX369KK1FvF7mUbv4LWsXc',
       value: '0',
-      body: 'data:application/json,{"p":"ton-20","op":"mint","tick":"dedust.io","amt":"1000000000"}'
+      body: 'data:application/json,{"p":"ton-20","op":"mint","tick":"tonup","amt":"10000000000"}'
     })
 
     const params: any = {
@@ -41,7 +41,7 @@ async function init() {
   }
 }
 
-let totalTx = 100;
+let totalTx = 500;
 let i = 1;                  
 
 function myLoop() {         
@@ -49,13 +49,13 @@ function myLoop() {
     console.log(`Tx ${i} sent`);
     init();
     i++;                    
-    if (i < totalTx) {           
+    if (i <= totalTx) {           
       myLoop();  
     } else {
       console.log(`Total success: ${successCount}`);
       console.log(`Total fail: ${failCount}`);
     }                       
-  }, 39000)
+  }, 40000)
 }
 
 myLoop();
