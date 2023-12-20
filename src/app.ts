@@ -24,8 +24,11 @@ async function init() {
       secretKey: wallet.keyPair.secretKey,
       messages: [
         payload,
+        payload,
+        payload,
+        payload,
       ],
-      sendMode: SendMode.PAY_GAS_SEPARATELY + SendMode.IGNORE_ERRORS
+      sendMode: SendMode.PAY_GAS_SEPARATELY
     }
 
     console.log('-> transfering...');
@@ -38,7 +41,7 @@ async function init() {
   }
 }
 
-let totalTx = 500;
+let totalTx = 100;
 let i = 1;                  
 
 function myLoop() {         
@@ -52,7 +55,7 @@ function myLoop() {
       console.log(`Total success: ${successCount}`);
       console.log(`Total fail: ${failCount}`);
     }                       
-  }, 3000)
+  }, 39000)
 }
 
 myLoop();
